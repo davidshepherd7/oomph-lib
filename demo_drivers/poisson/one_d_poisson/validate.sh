@@ -1,5 +1,20 @@
 #! /bin/sh
 
+# Get functions from the validate_functions.sh file
+. ${OOMPH_ROOT}/bin/validate_functions.sh
+
+# See if we have an input arg before we set the "nounset" option.
+no_fp_diff=false
+if test "$1" = "no_fpdiff"; then
+    no_fp_diff=true
+fi
+
+# Tell bash to fail immediately on errors or if variables are not set (this
+# stops it doing really stupid things like trying to create files in / if
+# oomph_root isn't set).
+set -o errexit
+set -o nounset
+
 
 #Set the number of tests to be checked
 NUM_TESTS=1
@@ -21,77 +36,11 @@ cd RESLT
 ../../one_d_poisson > ../OUTPUT_one_d_poisson
 cd ..
 echo "done"
-echo " " >> validation.log
-echo "1D demo poisson validation" >> validation.log
-echo "--------------------------" >> validation.log
-echo " " >> validation.log
-echo "Validation directory: " >> validation.log
-echo " " >> validation.log
-echo "  " `pwd` >> validation.log
-echo " " >> validation.log
+
+# Compare results (only if we have python + validata
 cat RESLT/soln0.dat RESLT/soln1.dat > one_d_poisson_results.dat
-
-if test "$1" = "no_fpdiff"; then
-  echo "dummy [OK] -- Can't run fpdiff.py because we don't have python or validata" >> validation.log
-else
-../../../../bin/fpdiff.py ../validata/one_d_poisson_results.dat.gz   \
-    one_d_poisson_results.dat  >> validation.log
-fi
-
-
-# Append output to global validation log file
-#--------------------------------------------
-cat validation.log >> ../../../../validation.log
-
 
 cd ..
 
-
-
-#######################################################################
-
-
-#Check that we get the correct number of OKs
-OK_COUNT=`grep -c 'OK' Validation/validation.log`
-if  [ $OK_COUNT -eq $NUM_TESTS ]; then
- echo " "
- echo "======================================================================"
- echo " " 
- echo "All tests in" 
- echo " " 
- echo "    `pwd`    "
- echo " "
- echo "passed successfully."
- echo " "
- echo "======================================================================"
- echo " " 
- exit 0
-else
-  if [ $OK_COUNT -lt $NUM_TESTS ]; then
-   echo " "
-   echo "======================================================================"
-   echo " " 
-   echo "Only $OK_COUNT of $NUM_TESTS test(s) passed; see"
-   echo " " 
-   echo "    `pwd`/Validation/validation.log"
-   echo " " 
-   echo "for details" 
-   echo " " 
-   echo "======================================================================"
-   echo " "
-   exit 1
-  else 
-   echo " "
-   echo "======================================================================"
-   echo " " 
-   echo "More OKs than tests! Need to update NUM_TESTS in"
-   echo " " 
-   echo "    `pwd`/validate.sh"
-   echo " "
-   echo "======================================================================"
-   echo " "
-  exit 2
-  fi
-fi
-# Never get here
-exit 10
+do_everything validata/one_d_poisson_results.dat.gz \
+    Validation/one_d_poisson_results.dat $no_fp_diff $OOMPH_ROOT

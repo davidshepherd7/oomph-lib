@@ -2,7 +2,8 @@
 # the include directory which we specify with -I
 AM_CPPFLAGS += -I@includedir@
 
-TESTS_ENVIRONMENT = MPI_RUN_COMMAND='@MPI_RUN_COMMAND@'
+# Pass mpi command and root dir into validate scripts
+TESTS_ENVIRONMENT = MPI_RUN_COMMAND='@MPI_RUN_COMMAND@' OOMPH_ROOT=$(abs_top_srcdir)
 
 # Choose self tests
 if COMPARE_AGAINST_VALIDATA
