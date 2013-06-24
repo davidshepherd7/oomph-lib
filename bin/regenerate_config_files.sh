@@ -149,6 +149,75 @@ echo "])" \
 
 cat config/configure.ac_scripts/end >> configure.ac
 
+# Automake compatability fix
+# ============================================================
+
+# If we have automake version more recent than 1.13 then the default is to
+# use the new parallel self test harness which doesn't work with
+# parallel_self_tests.py (and doesn't actually run tests in parallel
+# without a major rewrite of all Makefile.am s). So we need to disable it.
+# However the command to disable the new test harness was only introduced
+# in version 1.12 which is still very new! So it looks like the only way
+# around this for now is to modify configure.ac here if the automake
+# version is greater than 1.12.
+
+# First we need a way to compare versions:
+version_less_than()
+{
+
+    # Ideally I would use this but the version of coreutils on the Wulfling
+    # is so old that it doesn't have "--version-sort"...
+    # # Use tr rather than newlines in echo because sh and bash treat \n
+    # # differently and incompatibly!
+    # [ ! $(echo "$1 $2" | tr ' ' '\n' | sort --version-sort | head -1) = "$2" ]
+
+    # Extract individual parts of the version strings
+    v11=$(echo $1 | cut -d'.' -f1)
+    v12=$(echo $1 | cut -d'.' -f2)
+    v13=$(echo $1 | cut -d'.' -f3)
+
+    v21=$(echo $2 | cut -d'.' -f1)
+    v22=$(echo $2 | cut -d'.' -f2)
+    v23=$(echo $2 | cut -d'.' -f3)
+
+    # echo $v11 "." $v12 "." $v13 1>&2
+    # echo $v21 "." $v22 "." $v23 1>&2
+
+    # Compare them all. Nested ifs because shell conditionals are HARD...
+    result=1
+    if [ $v11 -lt $v21 ]; then
+        result=0
+        echo "in 1" 1>&2
+    elif [ $v11 -eq $v21 ]; then
+        if [ $v12 -lt $v22 ]; then
+            result=0
+            echo "in 2" 1>&2
+        elif [ $v12 -eq $v22 ]; then
+            if [ $v13 -lt $v23 ]; then
+                result=0
+                echo "in 3" 1>&2
+            fi
+        fi
+    fi
+
+    echo $result
+}
+
+# Now we need to get the automake version (hopefully they don't change the
+# formatting of the --version output! Don't think there's any other way to
+# get the version).
+automake_version=$(automake --version | head -1 | tr ' ' '\n' | tail -1)
+
+if $(version_less_than 1.12.0 $automake_version) ; then
+    echo "I'm modifying configure.ac to use serial self tests in automake because you have a recent enough version of automake, see bin/regenerate_config_files.sh for why/how."
+    # Enforce serial tests and require automake version 1.12 or above (just
+    # in case someone does something really weird..)
+    sed 's/^[ \t]*AM_INIT_AUTOMAKE[ \t]*$/AM_INIT_AUTOMAKE([1.12 serial-tests])/' \
+        -i configure.ac
+fi
+
+
+
 echo " "
 echo "Done. "
 
