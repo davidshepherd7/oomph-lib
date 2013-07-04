@@ -46,7 +46,8 @@ iterative_linear_solver.cc \
 general_purpose_preconditioners.cc block_preconditioner.cc \
 matrix_vector_product.cc \
 sum_of_matrices.cc \
-preconditioner_array.cc general_purpose_block_preconditioners.cc pml_meshes.cc
+preconditioner_array.cc general_purpose_block_preconditioners.cc pml_meshes.cc \
+poly_interp.cc midpoint_method.cc
 #face_element_as_geometric_object.cc
 
 if OOMPH_HAS_MUMPS
@@ -106,7 +107,7 @@ general_purpose_block_preconditioners.h SuperLU_preconditioner.h \
 matrix_vector_product.h projection.h line_visualiser.h \
 Subparametric_Telements.h \
 sum_of_matrices.h convergence_data.h midpoint_method.h poly_interp.h \
-preconditioner_array.h pml_meshes.h
+preconditioner_array.h pml_meshes.h interpolator.h
 
 
 if OOMPH_HAS_MUMPS
