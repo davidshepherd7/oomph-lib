@@ -2023,7 +2023,8 @@ namespace oomph
  /// values should be shifted. If it is true the current data values will 
  /// be shifted (copied to the locations where there are stored as 
  /// previous timesteps) before solution.
- void unsteady_newton_solve(const double &dt, const bool &shift_values);
+ void unsteady_newton_solve(const double &dt, const bool &shift_values,
+                            const bool& calculate_predictions=false);
 
  /// \short Unsteady adaptive Newton solve: up to max_adapt adaptations of all
  /// refineable submeshes are performed to achieve the 
