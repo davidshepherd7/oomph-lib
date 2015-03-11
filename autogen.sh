@@ -153,6 +153,25 @@ if [[ $generate_config_files == "true" ]]; then
     # around this for now is to modify configure.ac here if the automake
     # version is greater than 1.12.
 
+    # Update 03/11/15 (by david)
+    # -------------------------------------------------------------------------
+    # There might be a way to do this "properly" within autoconfigure.
+    # Details are here:
+    # http://stackoverflow.com/questions/15820844/how-to-define-automake-options-conditionally
+    # However I'm not going to change it because 1) what we have at the
+    # moment works, 2) debugging sh script is a nightmare (even more so for
+    # shell script within autoconfigure) and 3) I'm leaving soon so I don't
+    # want to potentially break things and vanish. Also the sample code
+    # looks dodgy: what happens if we have version 1.10? Version 1.1.11?
+
+    # In case the website moves/vanishes the relevant code is something like:
+    # AM_INIT_AUTOMAKE([m4_esyscmd([case `automake --version | head -n 1` in
+    #                                   *1.11*);;
+    #                                   *) echo serial-tests;;
+    #                               esac])], [foreign])
+    # Which goes in configure.ac instead of the file include.
+    # -------------------------------------------------------------------------
+
     # Version comparison function from
     # http://stackoverflow.com/questions/3511006/how-to-compare-versions-of-some-products-in-unix-shell
     # We can't use the much simpler sort -V, or bash code because might not
